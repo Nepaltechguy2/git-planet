@@ -15,6 +15,7 @@
         "express": "latest",
         "mongodb": "^3.4.1",
         "morgan": "latest",
-        "nodegit": "^0.26.3"
+        "nodegit": "^0.26.3",
+        "temp": "^0.9.1"
     }
 }

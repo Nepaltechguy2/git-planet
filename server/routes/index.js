@@ -1,5 +1,6 @@
 const express = require('express');
 const project = require('./project.js');
+const convert = require('./convert.js');
 const tags = require('./tags.js');
 
 module.exports = ({config, db}) => {
@@ -12,7 +13,8 @@ module.exports = ({config, db}) => {
     router.post("/api/project/isPublished", project(config, db).isPublished);
     router.post("/api/project/:projectID/report", project(config, db).report);
     router.post("/api/project/:projectID/like/:amount", project(config, db).like);
-    router.post("/api/project/:projectID/convert/:from/:to", project(config, db).convert);
+
+    router.post("/api/convert/:from/:to", convert(config, db).convert);
 
     router.get("/api/tags", tags(config, db).list);
 

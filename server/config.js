@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = {
     "port": 2020,
     "bodyLimit": "100kb",
@@ -15,5 +16,10 @@ module.exports = {
             "PbpmXsMX4JM49VuXCNoUuYfNFVdAl2FDlLjzpUslMBI6NLEQAozVBXkWA6u9IPtl\n" +
             "T/KhyPS9Pb0vtm17s6J+skUtj/6MFo2t/QIDAQAB\n" +
             "-----END RSA PUBLIC KEY-----\n"
+    },
+    "convert": {
+        "lilypond": "C:\\Program Files (x86)\\LilyPond\\usr\\bin\\lilypond-windows.exe",
+        "cli_options": "",
+        "outputDir": path.join(__dirname, '../tmp/')
     }
 };

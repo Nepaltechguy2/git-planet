@@ -17,23 +17,23 @@ module.exports = (config, db) => {
         return rslt;
     }
 
+    function unsuccessful(errorMessage, next) {
+        next(new Error(errorMessage));
+    }
+
     return {
         create: async (req, res, next) => {
-            console.log("a");
-
             if (
                 !req.body.ProjectID ||
                 !req.body.ProjectName ||
                 !req.body.ProjectDescription ||
                 !req.body.ProjectSearchKeywords ||
                 !req.body.ProjectData ||
-                // !req.body.ProjectImage ||
                 !req.body.ProjectIsMusicBlocks ||
                 !req.body.ProjectCreatorName ||
                 !req.body.ProjectTags
             ) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             try {
                 let tags = JSON.parse(req.body.ProjectTags);
@@ -58,11 +58,13 @@ module.exports = (config, db) => {
                     res.json({
                         success: true
                     })
-                }).catch(() => {
-                    next(new Error("ERROR_INVALID_PARAMETERS"));
+                }).catch((err) => {
+                    console.error(err);
+                    return unsuccessful("ERROR_INVALID_PARAMETERS", next);
                 })
             } catch (e) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
+                console.error(e);
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
         },
         getProjectDetails: async (req, res, next) => {
@@ -70,18 +72,15 @@ module.exports = (config, db) => {
             try {
                 ProjectID = parseInt(req.params.projectID);
             } catch (e) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             projects.find({ProjectID: ProjectID}).toArray((err, result) => {
                 if (err) {
                     console.error(err);
-                    next(new Error("ERROR_INTERNAL_DATABASE"));
-                    return;
+                    return unsuccessful("ERROR_INTERNAL_DATABASE", next);
                 }
                 if (result.length < 1) {
-                    next(new Error("ERROR_PROJECT_NOT_FOUND"));
-                    return;
+                    return unsuccessful("ERROR_PROJECT_NOT_FOUND", next);
                 }
                 res.json({
                     success: true,
@@ -92,14 +91,12 @@ module.exports = (config, db) => {
         search: async (req, res, next) => {
             // check params.
             if (!req.query.query && !req.query.tags && !req.query.tag) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             // establish sort order
             let sortKeyOrder;
             if (!req.query.sort) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             } else {
                 let sortKey = {
                     "RECENT": ["ProjectLastUpdated", -1],
@@ -115,28 +112,31 @@ module.exports = (config, db) => {
                 start = parseInt(req.query.start) || 0;
                 end = parseInt(req.query.end) || 25;
             } catch (e) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             if (end - start >= 100) { // 0 -> 100 is 101 objects
-                next(new Error("ERROR_TOO_MANY"));
-                return;
+                return unsuccessful("ERROR_TOO_MANY", next);
             }
 
             // do different things depending search type.
             if (req.query.tag) {
-                let tag;
-                try {
+                let tag, query;
+                if (req.query.tag.toUpperCase() !== "ALL_PROJECTS") {
                     tag = parseInt(req.query.tag);
-                } catch (e) {
-                    next(new Error("ERROR_INVALID_PARAMETERS"));
-                    return;
-                }
-                projects.find({
-                    ProjectTags: {
-                        $all: [tag]
+                    if (isNaN(tag)) {
+                        return unsuccessful("ERROR_INVALID_PARAMETERS", next);
                     }
-                })
+                    query = {
+                        ProjectTags: {
+                            $all: [tag]
+                        }
+                    };
+                } else {
+                    query = {};
+                }
+
+                projects
+                    .find(query)
                     .sort(sortKeyOrder)
                     .skip(start)
                     .limit(end - start)
@@ -155,8 +155,7 @@ module.exports = (config, db) => {
                     tags = JSON.parse(req.query.tags);
                     tags = tags.map(num => parseInt(num));
                 } catch (e) {
-                    next(new Error("ERROR_INVALID_PARAMETERS"));
-                    return;
+                    return unsuccessful("ERROR_INVALID_PARAMETERS", next);
                 }
                 projects.find({
                     ProjectTags: {
@@ -200,8 +199,7 @@ module.exports = (config, db) => {
             try {
                 ProjectID = parseInt(req.params.projectID);
             } catch (e) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             projects
                 .updateOne({ProjectID: ProjectID}, {
@@ -212,12 +210,10 @@ module.exports = (config, db) => {
                 projects.find({ProjectID: ProjectID}).toArray((err, result) => {
                     if (err) {
                         console.error(err);
-                        next(new Error("ERROR_INTERNAL_DATABASE"));
-                        return;
+                        return unsuccessful("ERROR_INTERNAL_DATABASE", next);
                     }
                     if (result.length < 1) {
-                        next(new Error("ERROR_PROJECT_NOT_FOUND"));
-                        return;
+                        return unsuccessful("ERROR_PROJECT_NOT_FOUND", next);
                     }
                     res.json({
                         success: true,
@@ -233,12 +229,10 @@ module.exports = (config, db) => {
                 projectIDs = JSON.parse(req.body.projects);
                 projectIDs = projectIDs.map(id => parseInt(id));
             } catch (e) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             if (projectIDs.length > 100) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             projects.find({
                 ProjectID: {
@@ -246,8 +240,7 @@ module.exports = (config, db) => {
                 }
             }).toArray((err, result) => {
                 if (err) {
-                    next(new Error("ERROR_INVALID_PARAMETERS"));
-                    return;
+                    return unsuccessful("ERROR_INVALID_PARAMETERS", next);
                 }
                 let rslt = {};
                 result.forEach(project => {
@@ -265,15 +258,13 @@ module.exports = (config, db) => {
             try {
                 projectID = parseInt(req.params.projectID);
             } catch (e) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             reason = req.body.reason;
             // TODO replace this with the implemented userid
             userid = req.body.userid;
             if (!reason || reason.length === 0 || !userid || !projectID) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             projects.updateOne({
                 ProjectID: projectID
@@ -304,8 +295,7 @@ module.exports = (config, db) => {
             let userid = parseInt(req.body.userid), projectID = parseInt(req.params.projectID),
                 amount = parseInt(req.params.amount);
             if (!userid || !projectID) {
-                next(new Error("ERROR_INVALID_PARAMETERS"));
-                return;
+                return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             if (amount) { // like
                 // union with array. set array length to numLikes.
@@ -359,8 +349,6 @@ module.exports = (config, db) => {
 
             }
         },
-        convert: async (req, res, next) => {
-            next(new Error("ERROR_NOT_IMPLEMENTED_YET"))
-        }
+
     }
 };
