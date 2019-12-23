@@ -11,7 +11,7 @@ This is a work in progress for a rewrite of Musicblock's planet.
     - [x] Download Project List
     - [x] Get Project Details
     - [x] Download Project
-    - [ ] Get Tag Manifest
+    - [x] Get Tag Manifest
     - [x] Search Projects
     - [x] Check if published
     - [x] Like Project (and unlike)
