@@ -1,0 +1,8 @@
+{
+    "ERROR_INCLUDE_QUERY_OR_TAGS": "Please include a query param or a tags param in your request.",
+    "ERROR_INVALID_PARAMETERS": "There was an error checking some of your params. Please try again!",
+    "ERROR_TOO_MANY": "You requested too many projects at once. Maximum is 100!",
+    "ERROR_INTERNAL_DATABASE": "Something went wrong on the server. Please try again!",
+    "ERROR_PROJECT_NOT_FOUND": "That project was not found.",
+    "ERROR_NOT_IMPLEMENTED_YET": "This feature is still in development :("
+}
