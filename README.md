@@ -25,8 +25,14 @@ This is a work in progress for a rewrite of Musicblock's planet.
     - [ ] Fork Project
     - [ ] Create a branch
     - [ ] Merge 
-- [ ] Moderation feature parity with current planet
-
-
+- [ ] Moderation features
+    - [ ] Current Feature Parity
+        - [ ] Edit projects
+        - [ ] Delete projects
+        - [ ] Deal with reports (view/dismiss) 
+        - [ ] Create link for new signups 
+    - [ ] Change Password
+    - [ ] Create groups 
+    - [ ] View projects from users in groups
 ## Todo
 - [ ] Put lilypond in chroot jail, or at least instructions to.
