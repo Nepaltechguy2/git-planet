@@ -35,5 +35,7 @@ initializeDb(db => {
             error: ERRORMESSAGES[err.message],
             errorCode: err.message
         });
-    })
+    });
+
+    app.all("*", (req, res) => res.send("Musicblocks Planet - https://musicblocks.sugarlabs.org"));
 });

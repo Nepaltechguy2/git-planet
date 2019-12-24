@@ -12,7 +12,8 @@ module.exports = (config, db) => {
             blacklistedProperties.forEach(prop => {
                 delete project[prop];
             });
-            rslt.push(project);
+            let date = new Date(project.ProjectCreatedDate);
+            rslt.push([project.ProjectID, date.toUTCString()]);
         });
         return rslt;
     }
@@ -23,6 +24,7 @@ module.exports = (config, db) => {
 
     return {
         create: async (req, res, next) => {
+            console.log(req.body);
             if (
                 !req.body.ProjectID ||
                 !req.body.ProjectName ||
@@ -33,25 +35,39 @@ module.exports = (config, db) => {
                 !req.body.ProjectCreatorName ||
                 !req.body.ProjectTags
             ) {
+                console.log(
+                    !req.body.ProjectID,
+                    !req.body.ProjectName,
+                    !req.body.ProjectDescription,
+                    !req.body.ProjectSearchKeywords,
+                    !req.body.ProjectData,
+                    !req.body.ProjectIsMusicBlocks,
+                    !req.body.ProjectCreatorName,
+                    !req.body.ProjectTags)
                 return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             try {
                 let tags = JSON.parse(req.body.ProjectTags);
-                tags.map(tag => parseInt(tag));
+                tags = tags.map(tag => parseInt(tag));
+                let date =new Date();
+                let projectImage = req.body.ProjectImage;
+                if(req.body.ProjectImage === "null"){
+                    projectImage = "";
+                }
                 projects.insertOne({
-                    ProjectID: req.body.ProjectID,
+                    ProjectID: parseInt(req.body.ProjectID),
                     ProjectName: req.body.ProjectName,
                     ProjectDescription: req.body.ProjectDescription,
                     ProjectSearchKeywords: req.body.ProjectSearchKeywords,
                     ProjectData: req.body.ProjectData,
-                    ProjectImage: req.body.ProjectImage || null,
+                    ProjectImage: projectImage,
                     ProjectIsMusicBlocks: req.body.ProjectIsMusicBlocks,
                     ProjectCreatorName: req.body.ProjectCreatorName,
                     ProjectTags: tags,
                     ProjectLikes: 0,
                     ProjectDownloads: 0,
-                    ProjectLastUpdated: new Date(),
-                    ProjectCreatedDate: new Date(),
+                    ProjectLastUpdated: date.toUTCString(),
+                    ProjectCreatedDate: date.toUTCString(),
                     ProjectReportedCount: 0,
                     likedUsers: [],
                 }).then(() => {
@@ -150,18 +166,24 @@ module.exports = (config, db) => {
                     })
 
             } else if (req.query.tags) {
-                let tags;
+                let tags, query;
                 try {
                     tags = JSON.parse(req.query.tags);
                     tags = tags.map(num => parseInt(num));
+                    query = {
+                        ProjectTags: {
+                            $all: tags
+                        }
+                    };
                 } catch (e) {
-                    return unsuccessful("ERROR_INVALID_PARAMETERS", next);
-                }
-                projects.find({
-                    ProjectTags: {
-                        $all: tags
+                    if(req.query.tags.toUpperCase() === "ALL_PROJECTS"){
+                        query = {}
+                    } else {
+                        return unsuccessful("ERROR_INVALID_PARAMETERS", next);
                     }
-                })
+
+                }
+                projects.find(query)
                     .sort(sortKeyOrder)
                     .skip(start)
                     .limit(end - start)
@@ -294,7 +316,7 @@ module.exports = (config, db) => {
             // TODO replace with userid
             let userid = parseInt(req.body.userid), projectID = parseInt(req.params.projectID),
                 amount = parseInt(req.params.amount);
-            if (!userid || !projectID) {
+            if (/*!userid || */!projectID) {
                 return unsuccessful("ERROR_INVALID_PARAMETERS", next);
             }
             if (amount) { // like
@@ -306,7 +328,6 @@ module.exports = (config, db) => {
                         "likedUsers": userid
                     }
                 }).then((result) => {
-
                     if (!result.value.likedUsers.includes(userid)) {
                         // increase num likes by one
                         projects.updateOne({

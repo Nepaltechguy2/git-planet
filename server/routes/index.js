@@ -2,6 +2,7 @@ const express = require('express');
 const project = require('./project.js');
 const convert = require('./convert.js');
 const tags = require('./tags.js');
+const nodegit = require('nodegit');
 
 module.exports = ({config, db}) => {
     let router = express.Router();
