@@ -5,6 +5,10 @@ This is a work in progress for a rewrite of Musicblock's planet.
 
 [1]: https://documenter.getpostman.com/view/6621974/SWLYBAfz?version=latest#a9090b51-1eb0-4a12-a1ae-12e8665a248c
 
+# Installation
+For now, just point Musicblocks to https://mb-test-api.samyok.us. 
+Installing MongoDB and getting all the indices set up properly is a little bit of a hassle so I'll add an install script (that also sets up config.js) once this becomes a little more developed.
+
 ## Backend To-Do
 - [x] Feature parity with current planet
     - [x] Add a New Project

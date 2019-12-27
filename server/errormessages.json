@@ -4,5 +4,7 @@
     "ERROR_TOO_MANY": "You requested too many projects at once. Maximum is 100!",
     "ERROR_INTERNAL_DATABASE": "Something went wrong on the server. Please try again!",
     "ERROR_PROJECT_NOT_FOUND": "That project was not found.",
-    "ERROR_NOT_IMPLEMENTED_YET": "This feature is still in development :("
+    "ERROR_NOT_IMPLEMENTED_YET": "This feature is still in development :(",
+    "ERROR_USERNAME_TAKEN": "That username is already taken.",
+    "ERROR_INCORRECT_PASSWORD": "Your password is incorrect."
 }

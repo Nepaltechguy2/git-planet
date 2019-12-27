@@ -10,12 +10,17 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "bcrypt": "^3.0.7",
         "body-parser": "latest",
+        "cookie-parser": "^1.4.4",
         "cors": "latest",
         "express": "latest",
+        "jwt-simple": "^0.5.6",
         "mongodb": "^3.4.1",
         "morgan": "latest",
         "nodegit": "^0.26.3",
+        "passport": "^0.4.1",
+        "passport-jwt": "^4.0.0",
         "temp": "^0.9.1"
     }
 }
