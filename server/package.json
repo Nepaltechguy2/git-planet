@@ -10,7 +10,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "bcrypt": "^3.0.7",
+        "bcrypt": "^5.0.0",
         "body-parser": "latest",
         "cookie-parser": "^1.4.4",
         "cors": "latest",
